@@ -6,7 +6,10 @@ $local_db = __DIR__ . '/database.sqlite';
 // Consider using the local file as a SQLite backend if it exists
 if (
     file_exists($local_db)
-    && function_exists('sqlite_open')
+    && (
+      function_exists('sqlite_open')
+      || class_exists('SQLite3')
+    )
     && is_writable(__DIR__)
     && is_writable($local_db)
 ) {
