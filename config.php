@@ -1,9 +1,32 @@
 <?php
 // Hostname for your URL shortener
 $hostname = 'http://example.com';
+$local_db = __DIR__ . '/database.sqlite';
 
-// PDO connection to the database
-$connection = new PDO('mysql:dbname=shorty;host=localhost', 'user', 'password');
+// Consider using the local file as a SQLite backend if it exists
+if (
+    file_exists($local_db)
+    && function_exists('sqlite_open')
+    && is_writable(__DIR__)
+    && is_writable($local_db)
+) {
+    $connection = new PDO('sqlite:'.$local_db);
+    $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $connection->query(<<<EOF
+CREATE TABLE IF NOT EXISTS urls (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url VARCHAR(1000) NOT NULL,
+    created DATETIME NOT NULL,
+    accessed DATETIME,
+    hits INT UNSIGNED NOT NULL DEFAULT 0,
+    UNIQUE (url)
+);
+EOF
+    );
+} else {
+    // PDO connection a MySQL the database
+    $connection = new PDO('mysql:dbname=shorty;host=localhost', 'user', 'password');
+}
 
 // Choose your character set (default)
 $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
