@@ -43,7 +43,7 @@ class Shorty {
      *
      * @var array
      */
-    private $whitelist = array();
+    private $whitelist = [];
 
     /**
      * Constructor
@@ -212,7 +212,7 @@ class Shorty {
         $statement = $this->connection->prepare(
             'SELECT * FROM urls WHERE id = ?'
         );
-        $statement->execute(array($id));
+        $statement->execute([$id]);
 
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
@@ -227,7 +227,7 @@ class Shorty {
         $statement = $this->connection->prepare(
             'SELECT * FROM urls WHERE url = ?'
         );
-        $statement->execute(array($url));
+        $statement->execute([$url]);
 
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
@@ -244,7 +244,7 @@ class Shorty {
         $statement = $this->connection->prepare(
             'INSERT INTO urls (url, created) VALUES (?,?)'
         );
-        $statement->execute(array($url, $datetime));
+        $statement->execute([$url, $datetime]);
 
         return $this->connection->lastInsertId();
     }
@@ -260,7 +260,7 @@ class Shorty {
         $statement = $this->connection->prepare(
             'UPDATE urls SET hits = hits + 1, accessed = ? WHERE id = ?'
         );
-        $statement->execute(array($datetime, $id));
+        $statement->execute([$datetime, $id]);
     }
 
     /**
@@ -311,17 +311,9 @@ class Shorty {
      * Starts the program.
      */
     public function run() {
-        $q = str_replace('/', '', $_GET['q']);
-
-        $url = '';
-        if (isset($_GET['url'])) {
-          $url = urldecode($_GET['url']);
-        }
-
-        $format = '';
-        if (isset($_GET['format'])) {
-          $format = strtolower($_GET['format']);
-        }
+        $q = str_replace('/', '', $_GET['q'] ?? '');
+        $url = urldecode($_GET['url'] ?? '');
+        $format = strtolower($_GET['format'] ?? '');
 
         // If adding a new URL
         if (!empty($url)) {
@@ -334,10 +326,7 @@ class Shorty {
 
                 // Not found, so save it
                 if (empty($result)) {
-
-                    $id = $this->store($url);
-
-                    $url = $this->hostname.'/'.$this->encode($id);
+                    $url = $this->hostname.'/'.$this->encode($this->store($url));
                 }
                 else {
                     $url = $this->hostname.'/'.$this->encode($result['id']);
@@ -350,46 +339,43 @@ class Shorty {
 
                     case 'json':
                         header('Content-Type: application/json');
-                        exit(json_encode(array('url' => $url)));
+                        exit(json_encode(['url' => $url]));
 
                     case 'xml':
                         header('Content-Type: application/xml');
-                        exit(implode("\n", array(
+                        exit(implode("\n", [
                             '<?xml version="1.0"?'.'>',
                             '<response>',
                             '  <url>'.htmlentities($url).'</url>',
                             '</response>'
-                        )));
+                        ]));
 
                     default:
                         exit('<a href="'.$url.'">'.$url.'</a>');
                 }
             }
-            else {
-                $this->error('Bad input.');
-            }
+
+            $this->error('Bad input.');
         }
+
         // Lookup by id
-        else {
-            if (empty($q)) {
-              $this->not_found();
-              return;
-            }
+        if (empty($q)) {
+            $this->not_found();
+        }
 
-            if (preg_match('/^([a-zA-Z0-9]+)$/', $q, $matches)) {
-                $id = self::decode($matches[1]);
+        if (preg_match('/^([a-zA-Z0-9]+)$/', $q, $matches)) {
+            $id = self::decode($matches[1]);
+            $result = $this->fetch($id);
 
-                $result = $this->fetch($id);
-
-                if (!empty($result)) {
+            if (!empty($result)) {
+                if (! isset($track) || $track) {
                     $this->update($id);
+                }
 
-                    $this->redirect($result['url']);
-                }
-                else {
-                    $this->not_found();
-                }
+                $this->redirect($result['url']);
             }
+
+            $this->not_found();
         }
     }
 }
