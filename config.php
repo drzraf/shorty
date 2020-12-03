@@ -28,8 +28,14 @@ EOF
     $connection = new PDO('mysql:dbname=shorty;host=localhost', 'user', 'password');
 }
 
+// A password used for editing (to pass as $_GET['password'])
+define('PASSWORD', getenv('SHORTY_PASSWORD', ''));
+
+// Whether to track
+$track = getenv(SHORTY_TRACK, true);
+
 // Choose your character set (default)
-$chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+$chars = getenv(SHORTY_CHARS, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 
 // The following are shuffled strings of the default character set.
 // You can uncomment one of the lines below to use a pre-generated set,
@@ -46,9 +52,7 @@ $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 // If you want your generated URLs to even harder to guess, you can set
 // the salt value below to any non empty value. This is especially useful for
 // encoding consecutive numbers.
-$salt = '';
+$salt = getenv(SHORTY_SALT, '');
 
 // The padding length to use when the salt value is configured above.
-// The default value is 3.
-$padding = 3;
-?>
+$padding = getenv(SHORTY_PADDING, 3);

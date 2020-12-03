@@ -9,4 +9,3 @@ $shorty->set_salt($salt);
 $shorty->set_padding($padding);
 
 $shorty->run();
-?>
