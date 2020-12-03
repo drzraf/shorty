@@ -9,6 +9,7 @@ if (
     && (
       function_exists('sqlite_open')
       || class_exists('SQLite3')
+      || extension_loaded('sqlite3')
     )
     && is_writable(__DIR__)
     && is_writable($local_db)
