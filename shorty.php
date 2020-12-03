@@ -321,6 +321,10 @@ class Shorty {
                 $this->error('Not allowed.');
             }
 
+            if (defined('PASSWORD') && !empty(PASSWORD) && PASSWORD !== ($_GET['password'] ?? '')) {
+                $this->error('Not allowed.');
+            }
+
             if (preg_match('/^http[s]?\:\/\/[\w]+/', $url)) {
                 $result = $this->find($url);
 
