@@ -46,6 +46,13 @@ class Shorty {
     private $whitelist = [];
 
     /**
+     * A password allowing short URL additionHostname.
+     *
+     * @var string
+     */
+    private $password = '';
+
+    /**
      * Constructor
      *
      * @param string $hostname Hostname
@@ -305,6 +312,15 @@ class Shorty {
     }
 
     /**
+     * Adds an IP to allow saving URLs.
+     *
+     * @param string $password Pssword to set
+     */
+    public function set_password($password) {
+        $this->password = $password;
+    }
+
+    /**
      * Starts the program.
      */
     public function run() {
@@ -318,7 +334,7 @@ class Shorty {
                 $this->error('Not allowed.');
             }
 
-            if (defined('PASSWORD') && !empty(PASSWORD) && PASSWORD !== ($_GET['password'] ?? '')) {
+            if (!empty($this->password) && $this->password !== ($_GET['password'] ?? '')) {
                 $this->error('Not allowed.');
             }
 

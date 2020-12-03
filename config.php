@@ -1,20 +1,20 @@
 <?php
-// Hostname for your URL shortener
-$hostname = 'http://example.com';
-$local_db = __DIR__ . '/database.sqlite';
 
+// "sqlite:db.sqlite" could be used as weel
+$db_dsn = (string)getenv('SHORTY_DB_DSN', 'mysql:dbname=shorty;host=localhost');
+$db_user = (string)getenv('SHORTY_DB_USER', 'shorty');
+$db_pass = (string)getenv('SHORTY_DB_PASS', '');
+
+$connection = new PDO($db_dsn, $db_user, $db_pass);
 // Consider using the local file as a SQLite backend if it exists
-if (
-    file_exists($local_db)
-    && (
-      function_exists('sqlite_open')
-      || class_exists('SQLite3')
-      || extension_loaded('sqlite3')
-    )
-    && is_writable(__DIR__)
-    && is_writable($local_db)
-) {
-    $connection = new PDO('sqlite:'.$local_db);
+if (strpos($db_dsn, 'sqlite') === 0) {
+    if (!is_writable(__DIR__)) {
+        throw new Exception("No write access to database.");
+    }
+    if (! (function_exists('sqlite_open') || class_exists('SQLite3') || extension_loaded('sqlite3'))) {
+        throw new Exception("database drive not installed.");
+    }
+
     $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $connection->query(<<<EOF
 CREATE TABLE IF NOT EXISTS urls (
@@ -27,13 +27,13 @@ CREATE TABLE IF NOT EXISTS urls (
 );
 EOF
     );
-} else {
-    // PDO connection a MySQL the database
-    $connection = new PDO('mysql:dbname=shorty;host=localhost', 'user', 'password');
 }
 
+// Hostname for your URL shortener
+$hostname = (string)getenv('SHORTY_HOSTNAME', $_SERVER['SERVER_NAME']);
+
 // A password used for editing (to pass as $_GET['password'])
-define('PASSWORD', (string)getenv('SHORTY_PASSWORD', ''));
+$password = (string)getenv('SHORTY_PASSWORD', '');
 
 // Whether to track (use 0 or 1 if using environment)
 $track = (bool)getenv('SHORTY_TRACK', true);
