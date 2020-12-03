@@ -278,10 +278,7 @@ class Shorty {
      */
     public function not_found() {
         header('Status: 404 Not Found');
-        exit(
-            '<h1>404 Not Found</h1>'.
-            str_repeat(' ', 512)
-        );
+        exit('<h1>404 Not Found</h1>');
     }
 
     /**
