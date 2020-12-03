@@ -36,10 +36,10 @@ EOF
 define('PASSWORD', (string)getenv('SHORTY_PASSWORD', ''));
 
 // Whether to track (use 0 or 1 if using environment)
-$track = (bool)getenv(SHORTY_TRACK, true);
+$track = (bool)getenv('SHORTY_TRACK', true);
 
 // Choose your character set (default)
-$chars = (string)getenv(SHORTY_CHARS, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
+$chars = (string)getenv('SHORTY_CHARS', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789');
 
 // The following are shuffled strings of the default character set.
 // You can uncomment one of the lines below to use a pre-generated set,
@@ -56,7 +56,7 @@ $chars = (string)getenv(SHORTY_CHARS, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNO
 // If you want your generated URLs to even harder to guess, you can set
 // the salt value below to any non empty value. This is especially useful for
 // encoding consecutive numbers.
-$salt = (string)getenv(SHORTY_SALT, '');
+$salt = (string)getenv('SHORTY_SALT', '');
 
 // The padding length to use when the salt value is configured above.
-$padding = (int)getenv(SHORTY_PADDING, 3);
+$padding = (int)getenv('SHORTY_PADDING', 3);
